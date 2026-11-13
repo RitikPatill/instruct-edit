@@ -6,15 +6,17 @@ The core idea is a **two-stage LLM chain** that turns a vague instruction like _
 
 ---
 
-## What works now (M1)
+## What works now (M2)
 
 - Python package scaffold under `src/instruct_edit/` (`__version__ = "0.1.0"`)
 - `requirements.txt` with pinned versions: FastAPI 0.115, Uvicorn 0.32, OpenAI SDK 1.54, Pillow 11, python-dotenv, Jinja2, python-multipart
 - `.env.example` documenting required environment variables
 - MIT license and `.gitignore`
 - `demo/` directory placeholder for the M6 screen recording
+- `src/instruct_edit/analyzer.py` — vision analysis module: accepts a PIL `Image` and a plain-English instruction, base64-encodes the image, calls GPT-4o with a structured-output system prompt, validates the response against four required keys, and returns a `dict` ready for the edit stage
+- `tests/test_analyzer.py` — unit test suite with a fixture image (`tests/fixtures/sample.jpg`)
 
-Application code (routers, templates, pipeline logic) is added in M2–M5.
+The FastAPI application, routers, and Jinja2 templates are added in M3–M5.
 
 ---
 
@@ -47,10 +49,10 @@ GPT-4o receives the original image and the raw user instruction. It returns a st
 
 ```json
 {
-  "region":     "sky in the upper third of the image",
-  "preserve":   "buildings, foreground, lighting on streets",
-  "prompt":     "golden-hour sunset sky, warm orange and pink hues, photorealistic",
-  "confidence": "high — sky is clearly separable from the subject"
+  "region_description": "sky in the upper third of the image",
+  "preserve_elements":  "buildings, foreground, lighting on streets",
+  "dalle_prompt":       "golden-hour sunset sky, warm orange and pink hues, photorealistic",
+  "confidence":         "high — sky is clearly separable from the subject"
 }
 ```
 
@@ -69,7 +71,13 @@ instruct-edit/
 ├── src/
 │   ├── __init__.py
 │   └── instruct_edit/
-│       └── __init__.py       # package version: 0.1.0
+│       ├── __init__.py       # package version: 0.1.0
+│       └── analyzer.py       # Stage 1: GPT-4o vision → structured JSON
+├── tests/
+│   ├── __init__.py
+│   ├── test_analyzer.py
+│   └── fixtures/
+│       └── sample.jpg
 ├── demo/                     # screen-recorded GIF added in M6
 ├── .env.example              # required environment variables
 ├── .gitignore
@@ -78,7 +86,7 @@ instruct-edit/
 └── README.md
 ```
 
-> Application code (`app.py`, routers, templates) is added in later milestones.
+> `app.py`, routers, and templates are added in M3–M5.
 
 ---
 
@@ -100,7 +108,7 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env and paste your OpenAI API key
 
-# 5. Run the development server  (available from M2 onwards)
+# 5. Run the development server  (available from M3 onwards)
 PYTHONPATH=src uvicorn instruct_edit.app:app --reload
 ```
 
@@ -120,8 +128,8 @@ Then open [http://localhost:8000](http://localhost:8000) in your browser.
 ## Roadmap
 
 - [x] **M1** — Repo scaffold, package layout, pinned dependencies, license
-- [ ] **M2** — FastAPI app skeleton, `/analyze` and `/edit` endpoints stubbed
-- [ ] **M3** — GPT-4o vision call with structured output
+- [x] **M2** — Vision analysis module (`analyzer.py`): GPT-4o vision call with structured JSON output, unit tests
+- [ ] **M3** — FastAPI app skeleton, `/analyze` and `/edit` endpoints stubbed
 - [ ] **M4** — DALL-E 3 edit call wired up end-to-end
 - [ ] **M5** — Jinja2 + vanilla-JS frontend with drag-and-drop upload
 - [ ] **M6** — Demo GIF, polished README, final cleanup
