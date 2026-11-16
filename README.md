@@ -6,7 +6,7 @@ The core idea is a **two-stage LLM chain** that turns a vague instruction like _
 
 ---
 
-## What works now (M4)
+## What works now (M5)
 
 - Python package scaffold under `src/instruct_edit/` (`__version__ = "0.1.0"`)
 - `requirements.txt` with pinned versions: FastAPI 0.115, Uvicorn 0.32, OpenAI SDK 1.54, Pillow 11, python-dotenv, Jinja2, python-multipart, httpx 0.27
@@ -19,8 +19,10 @@ The core idea is a **two-stage LLM chain** that turns a vague instruction like _
   - `GET /` — renders `templates/index.html` via Jinja2
   - `POST /analyze` — accepts multipart `image` + `instruction`, returns reasoning JSON (422 on empty instruction or malformed response)
   - `POST /edit` — runs the full two-stage pipeline, returns `{"analysis": {...}, "edited_image": "data:image/png;base64,…"}` (422 on ValueError, 502 on RuntimeError)
-  - `/static` mounted for future CSS/JS assets
-- `templates/index.html` — minimal placeholder (M5 replaces this with the full UI)
+  - `/static` mounted for CSS/JS assets
+- `templates/index.html` — full single-page UI (drag-and-drop upload, instruction input, before/after comparison, collapsible LLM reasoning)
+- `static/style.css` — dark-themed stylesheet with CSS custom properties and responsive grid layout
+- `static/app.js` — vanilla JS IIFE handling file selection, drag-and-drop preview, `POST /edit` fetch, and result rendering
 - `tests/test_analyzer.py`, `tests/test_editor.py`, and `tests/test_app.py` — unit test suites (all mocked, no real API calls)
 
 > **Note:** DALL-E 3 does not expose an edit/inpainting endpoint. When the DALL-E 2 edit call fails (e.g. content policy), the fallback uses DALL-E 3 `generate` — the original image pixels are discarded and the edit is prompt-only.
@@ -86,7 +88,9 @@ instruct-edit/
 │       └── app.py            # FastAPI application (GET /, POST /analyze, POST /edit)
 ├── templates/
 │   └── index.html            # Jinja2 template (full UI added in M5)
-├── static/                   # served at /static (CSS/JS added in M5)
+├── static/
+│   ├── style.css             # dark-themed CSS with responsive image-pair grid
+│   └── app.js                # vanilla JS: drag-and-drop, fetch /edit, render results
 ├── tests/
 │   ├── __init__.py
 │   ├── test_analyzer.py
@@ -145,7 +149,7 @@ Then open [http://localhost:8000](http://localhost:8000) in your browser.
 - [x] **M2** — Vision analysis module (`analyzer.py`): GPT-4o vision call with structured JSON output, unit tests
 - [x] **M3** — Edit execution module (`editor.py`): DALL-E 2 edit endpoint with blank mask, DALL-E 3 generation fallback, unit tests
 - [x] **M4** — FastAPI app (`app.py`), `GET /`, `POST /analyze`, `POST /edit` endpoints, Jinja2 template placeholder, static dir, full test suite
-- [ ] **M5** — Jinja2 + vanilla-JS frontend with drag-and-drop upload
+- [x] **M5** — Jinja2 + vanilla-JS frontend: drag-and-drop upload, instruction input, collapsible LLM reasoning, before/after image comparison
 - [ ] **M6** — Demo GIF, polished README, final cleanup
 
 ---

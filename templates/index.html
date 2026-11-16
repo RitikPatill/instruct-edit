@@ -4,8 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InstructEdit</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>InstructEdit</h1>
+    <header>
+        <h1>InstructEdit</h1>
+        <p class="tagline">Edit images with natural language — powered by GPT-4o + DALL-E</p>
+    </header>
+
+    <main>
+        <section id="upload-section">
+            <div id="drop-zone">
+                <img id="preview" hidden alt="Preview of selected image" />
+                <p id="drop-hint">
+                    <span class="drop-icon">&#8679;</span><br>
+                    Drag &amp; drop an image here<br>
+                    <span class="drop-sub">or click to browse</span>
+                </p>
+                <input type="file" id="file-input" accept="image/*" hidden />
+            </div>
+            <input type="text" id="instruction" placeholder='e.g. "make it sunset" or "remove the car"' />
+            <button id="submit-btn">Edit Image</button>
+        </section>
+
+        <div id="status" hidden></div>
+
+        <details id="reasoning-block" hidden>
+            <summary>LLM Reasoning</summary>
+            <pre id="reasoning-json"></pre>
+        </details>
+
+        <section id="result-section" hidden>
+            <div class="image-pair">
+                <figure>
+                    <figcaption>Before</figcaption>
+                    <img id="before-img" alt="Original image" />
+                </figure>
+                <figure>
+                    <figcaption>After</figcaption>
+                    <img id="after-img" alt="Edited image" />
+                </figure>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
 </body>
 </html>
