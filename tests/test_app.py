@@ -82,3 +82,19 @@ def test_edit_runtime_error():
             data={"instruction": "make it sunset"},
         )
     assert response.status_code == 502
+
+
+def test_index_returns_html():
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "text/html" in r.headers["content-type"]
+
+
+def test_index_contains_required_elements():
+    r = client.get("/")
+    body = r.text
+    assert 'id="drop-zone"' in body
+    assert 'id="instruction"' in body
+    assert 'id="submit-btn"' in body
+    assert 'id="reasoning-block"' in body
+    assert 'id="result-section"' in body
