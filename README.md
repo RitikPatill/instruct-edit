@@ -6,18 +6,22 @@ The core idea is a **two-stage LLM chain** that turns a vague instruction like _
 
 ---
 
-## What works now (M3)
+## What works now (M4)
 
 - Python package scaffold under `src/instruct_edit/` (`__version__ = "0.1.0"`)
-- `requirements.txt` with pinned versions: FastAPI 0.115, Uvicorn 0.32, OpenAI SDK 1.54, Pillow 11, python-dotenv, Jinja2, python-multipart
+- `requirements.txt` with pinned versions: FastAPI 0.115, Uvicorn 0.32, OpenAI SDK 1.54, Pillow 11, python-dotenv, Jinja2, python-multipart, httpx 0.27
 - `.env.example` documenting required environment variables
 - MIT license and `.gitignore`
 - `demo/` directory placeholder for the M6 screen recording
 - `src/instruct_edit/analyzer.py` — vision analysis module: accepts a PIL `Image` and a plain-English instruction, base64-encodes the image, calls GPT-4o with a structured-output system prompt, validates the response against four required keys, and returns a `dict` ready for the edit stage
 - `src/instruct_edit/editor.py` — edit execution module: takes the structured JSON from the analyzer and the original PIL Image, calls **DALL-E 2's edit endpoint** with a blank (edit-everywhere) mask, falls back to **DALL-E 3 generation** on `BadRequestError` (content policy / size), resizes the result back to original dimensions, and raises descriptive `RuntimeError`s for other API failures
-- `tests/test_analyzer.py` and `tests/test_editor.py` — unit test suites (all mocked, no real API calls)
-
-The FastAPI application, routers, and Jinja2 templates are added in M4–M5.
+- `src/instruct_edit/app.py` — FastAPI application with:
+  - `GET /` — renders `templates/index.html` via Jinja2
+  - `POST /analyze` — accepts multipart `image` + `instruction`, returns reasoning JSON (422 on empty instruction or malformed response)
+  - `POST /edit` — runs the full two-stage pipeline, returns `{"analysis": {...}, "edited_image": "data:image/png;base64,…"}` (422 on ValueError, 502 on RuntimeError)
+  - `/static` mounted for future CSS/JS assets
+- `templates/index.html` — minimal placeholder (M5 replaces this with the full UI)
+- `tests/test_analyzer.py`, `tests/test_editor.py`, and `tests/test_app.py` — unit test suites (all mocked, no real API calls)
 
 > **Note:** DALL-E 3 does not expose an edit/inpainting endpoint. When the DALL-E 2 edit call fails (e.g. content policy), the fallback uses DALL-E 3 `generate` — the original image pixels are discarded and the edit is prompt-only.
 
@@ -78,11 +82,16 @@ instruct-edit/
 │   └── instruct_edit/
 │       ├── __init__.py       # package version: 0.1.0
 │       ├── analyzer.py       # Stage 1: GPT-4o vision → structured JSON
-│       └── editor.py         # Stage 2: DALL-E 2 edit (+ DALL-E 3 fallback)
+│       ├── editor.py         # Stage 2: DALL-E 2 edit (+ DALL-E 3 fallback)
+│       └── app.py            # FastAPI application (GET /, POST /analyze, POST /edit)
+├── templates/
+│   └── index.html            # Jinja2 template (full UI added in M5)
+├── static/                   # served at /static (CSS/JS added in M5)
 ├── tests/
 │   ├── __init__.py
 │   ├── test_analyzer.py
 │   ├── test_editor.py
+│   ├── test_app.py
 │   └── fixtures/
 │       └── sample.jpg
 ├── demo/                     # screen-recorded GIF added in M6
@@ -92,8 +101,6 @@ instruct-edit/
 ├── LICENSE
 └── README.md
 ```
-
-> `app.py`, routers, and templates are added in M4–M5.
 
 ---
 
@@ -137,7 +144,7 @@ Then open [http://localhost:8000](http://localhost:8000) in your browser.
 - [x] **M1** — Repo scaffold, package layout, pinned dependencies, license
 - [x] **M2** — Vision analysis module (`analyzer.py`): GPT-4o vision call with structured JSON output, unit tests
 - [x] **M3** — Edit execution module (`editor.py`): DALL-E 2 edit endpoint with blank mask, DALL-E 3 generation fallback, unit tests
-- [ ] **M4** — FastAPI app skeleton, `/analyze` and `/edit` endpoints wired end-to-end
+- [x] **M4** — FastAPI app (`app.py`), `GET /`, `POST /analyze`, `POST /edit` endpoints, Jinja2 template placeholder, static dir, full test suite
 - [ ] **M5** — Jinja2 + vanilla-JS frontend with drag-and-drop upload
 - [ ] **M6** — Demo GIF, polished README, final cleanup
 
