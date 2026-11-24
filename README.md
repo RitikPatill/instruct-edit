@@ -1,5 +1,9 @@
 # InstructEdit — LLM-Guided Image Editing Pipeline
 
+
+> **Video walkthrough:** https://youtu.be/2HdGHSW3Whc
+> **60-second overview:** https://youtu.be/KyXQebZ-MUI
+
 > Describe an edit in plain English; an LLM reasons about the image and rewrites the prompt before DALL-E applies it.
 
 <!-- TODO: replace with a 5-10 second demo gif. Record with ScreenToGif on
